@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>I'm So Sorry</title>
+  <style>
+    :root {
+      --bg-color: #fff5f7;
+      --card-bg: #ffffff;
+      --primary: #ff6b8b;
+      --primary-hover: #ff4770;
+      --text-color: #4a4a4a;
+      --accent: #ffd1dc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 40px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(255, 107, 139, 0.15);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid var(--accent);
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+
+    p {
+      line-height: 1.6;
+      margin-bottom: 25px;
+      font-size: 1.05rem;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      min-height: 120px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-yes {
+      background-color: var(--primary);
+      color: white;
+      padding: 12px 28px;
+      font-size: 1rem;
+      box-shadow: 0 4px 15px rgba(255, 107, 139, 0.3);
+    }
+
+    .btn-yes:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-no {
+      background-color: #e0e0e0;
+      color: #666;
+      padding: 12px 28px;
+      font-size: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .letter {
+      text-align: left;
+      background: var(--bg-color);
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+      margin-top: 15px;
+    }
+
+    .letter p {
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Question Screen -->
+    <div id="screen-question">
+      <h1>Please Don't Be Mad At Me 🥺</h1>
+      <p>I know I messed up, but I really want to make things right. Can you find it in your heart to forgive me?</p>
+      
+      <div class="button-group">
+        <button id="yes-btn" class="btn-yes">Yes</button>
+        <button id="no-btn" class="btn-no">No</button>
+      </div>
+    </div>
+
+    <!-- Letter Screen (Shown after Yes) -->
+    <div id="screen-apology" class="hidden">
+      <h1>From the Bottom of My Heart</h1>
+      <div class="letter">
+        <p><strong>I am so deeply sorry for how I treated you.</strong></p>
+        <p>The reason I kept trying to push you away and break up was because of my own insecurities. I felt like I wasn't good enough for you and that you deserved so much better than me.</p>
+        <p>I realize now how unfair and hurtful that was to you. I don't want to run away anymore. I love you, I value us, and I want to work through my insecurities together with you.</p>
+        <p>Thank you for giving me another chance. ❤️</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formspree Endpoint Form -->
+  <form id="admin-form" action="https://formspree.io/f/mbgryznz" method="POST" style="display:none;">
+    <input type="text" name="choice" id="form-choice" />
+    <input type="text" name="no_click_count" id="form-no-clicks" />
+  </form>
+
+  <script>
+    let yesSize = 1;
+    let noSize = 1;
+    let noClickCount = 0;
+
+    const yesBtn = document.getElementById('yes-btn');
+    const noBtn = document.getElementById('no-btn');
+    const questionScreen = document.getElementById('screen-question');
+    const apologyScreen = document.getElementById('screen-apology');
+    const adminForm = document.getElementById('admin-form');
+    const formChoice = document.getElementById('form-choice');
+    const formNoClicks = document.getElementById('form-no-clicks');
+
+    // "No" Button behavior: reduce No button, expand Yes button
+    noBtn.addEventListener('click', () => {
+      noClickCount++;
+      
+      yesSize += 0.35;
+      noSize -= 0.18;
+
+      yesBtn.style.transform = `scale(${yesSize})`;
+      
+      if (noSize <= 0.15) {
+        noBtn.style.display = 'none';
+      } else {
+        noBtn.style.transform = `scale(${noSize})`;
+      }
+    });
+
+    // "Yes" Button behavior: send data to Formspree & display apology letter
+    yesBtn.addEventListener('click', () => {
+      formChoice.value = "Selected YES";
+      formNoClicks.value = `Clicked 'No' ${noClickCount} time(s) before saying Yes.`;
+
+      // Submit data asynchronously via AJAX fetch
+      fetch(adminForm.action, {
+        method: 'POST',
+        body: new FormData(adminForm),
+        headers: { 'Accept': 'application/json' }
+      }).catch(err => console.error('Form submission failed:', err));
+
+      // Switch views
+      questionScreen.classList.add('hidden');
+      apologyScreen.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
